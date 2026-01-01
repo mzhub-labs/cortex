@@ -1,0 +1,114 @@
+{
+  "name": "@mz-hub/mem-ts",
+  "version": "0.1.0",
+  "description": "Persistent memory for AI agents - A tiered memory system with fact extraction and conflict resolution",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./adapters": {
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.mjs",
+      "require": "./dist/adapters/index.js"
+    },
+    "./providers": {
+      "types": "./dist/providers/index.d.ts",
+      "import": "./dist/providers/index.mjs",
+      "require": "./dist/providers/index.js"
+    },
+    "./middleware": {
+      "types": "./dist/middleware/index.d.ts",
+      "import": "./dist/middleware/index.mjs",
+      "require": "./dist/middleware/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "logo.png"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "memory",
+    "llm",
+    "agents",
+    "knowledge-graph",
+    "context",
+    "openai",
+    "anthropic",
+    "gemini",
+    "groq",
+    "cerebras",
+    "ai-memory",
+    "chatbot-memory"
+  ],
+  "author": "MZ Hub",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MZ-Hub/mem-ts.git"
+  },
+  "homepage": "https://github.com/MZ-Hub/mem-ts#readme",
+  "bugs": {
+    "url": "https://github.com/MZ-Hub/mem-ts/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/uuid": "^10.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "uuid": "^11.0.3"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@cerebras/cerebras_cloud_sdk": "^1.0.0",
+    "@google/generative-ai": ">=0.21.0",
+    "groq-sdk": "^0.8.0",
+    "openai": "^4.0.0",
+    "mongodb": "^6.0.0",
+    "pg": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": {
+      "optional": true
+    },
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "@google/generative-ai": {
+      "optional": true
+    },
+    "groq-sdk": {
+      "optional": true
+    },
+    "@cerebras/cerebras_cloud_sdk": {
+      "optional": true
+    },
+    "mongodb": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
