@@ -167,7 +167,7 @@ interface MemoryFact {
 Synthesizes patterns across conversations (run on schedule).
 
 ```typescript
-import { DeepSleepWorker } from "@mzhub/mem-ts";
+import { DeepSleepWorker } from "@mzhub/cortex";
 
 const worker = new DeepSleepWorker(provider, adapter, {
   lookbackHours: 24,
@@ -183,7 +183,7 @@ await worker.runSynthesisCycle(userId);
 Manages memory stage transitions.
 
 ```typescript
-import { ConsolidationWorker } from "@mzhub/mem-ts";
+import { ConsolidationWorker } from "@mzhub/cortex";
 
 const consolidator = new ConsolidationWorker(adapter, {
   shortTermHours: 1,
@@ -200,7 +200,7 @@ await consolidator.pruneShortTerm(userId, 24);
 Flags conflicting information.
 
 ```typescript
-import { ContradictionDetector } from "@mzhub/mem-ts";
+import { ContradictionDetector } from "@mzhub/cortex";
 
 const detector = new ContradictionDetector(adapter, provider, {
   autoResolve: true,
@@ -216,7 +216,7 @@ const result = await detector.check(userId, newOperation);
 Manages knowledge graph links.
 
 ```typescript
-import { AssociationEngine } from "@mzhub/mem-ts";
+import { AssociationEngine } from "@mzhub/cortex";
 
 const engine = new AssociationEngine(adapter, provider, {
   similarityThreshold: 0.7,
@@ -233,7 +233,7 @@ const { nodes, edges } = await engine.getGraph(userId);
 Detects behavioral patterns.
 
 ```typescript
-import { PredictiveEngine } from "@mzhub/mem-ts";
+import { PredictiveEngine } from "@mzhub/cortex";
 
 const predictor = new PredictiveEngine(adapter, provider, {
   minOccurrences: 3,
@@ -249,7 +249,7 @@ const predictions = await predictor.getPredictions(userId);
 Optional 4-level memory pyramid.
 
 ```typescript
-import { HierarchicalMemory } from "@mzhub/mem-ts";
+import { HierarchicalMemory } from "@mzhub/cortex";
 
 const hmm = new HierarchicalMemory(adapter, provider, {
   enabled: true,
@@ -269,7 +269,7 @@ await hmm.promoteToCore(userId, factId, "reason");
 ### SecurityScanner
 
 ```typescript
-import { SecurityScanner } from "@mzhub/mem-ts";
+import { SecurityScanner } from "@mzhub/cortex";
 
 const scanner = new SecurityScanner({
   detectInjection: true,
@@ -286,7 +286,7 @@ const result = scanner.scan("My email is test@example.com");
 ### BudgetManager
 
 ```typescript
-import { BudgetManager } from "@mzhub/mem-ts";
+import { BudgetManager } from "@mzhub/cortex";
 
 const budget = new BudgetManager({
   maxTokensPerUserPerDay: 100000,
@@ -301,7 +301,7 @@ if (budget.canExtract("user123").allowed) {
 ### DecayManager
 
 ```typescript
-import { DecayManager } from "@mzhub/mem-ts";
+import { DecayManager } from "@mzhub/cortex";
 
 const decay = new DecayManager({
   defaultTtlDays: 90,
@@ -333,7 +333,7 @@ All adapters extend `BaseAdapter`:
 ## Events
 
 ```typescript
-import { MemoryEventEmitter } from "@mzhub/mem-ts";
+import { MemoryEventEmitter } from "@mzhub/cortex";
 
 const emitter = new MemoryEventEmitter();
 
@@ -349,7 +349,7 @@ emitter.on("session:end", (e) => console.log("Session ended"));
 
 ```typescript
 // Core
-export { MemoryOS } from "@mzhub/mem-ts";
+export { MemoryOS } from "@mzhub/cortex";
 
 // Adapters
 export {
@@ -360,7 +360,7 @@ export {
   PostgresAdapter,
   UpstashRedisAdapter,
   TieredAdapter,
-} from "@mzhub/mem-ts";
+} from "@mzhub/cortex";
 
 // Brain Components
 export {
@@ -370,7 +370,7 @@ export {
   AssociationEngine,
   PredictiveEngine,
   HierarchicalMemory,
-} from "@mzhub/mem-ts";
+} from "@mzhub/cortex";
 
 // Utilities
 export {
@@ -380,7 +380,7 @@ export {
   TokenTracker,
   AutoSummarizer,
   MemoryEventEmitter,
-} from "@mzhub/mem-ts";
+} from "@mzhub/cortex";
 
 // Embeddings (Optional)
 export {
@@ -389,5 +389,5 @@ export {
   InMemoryVectorStore,
   cosineSimilarity,
   findTopK,
-} from "@mzhub/mem-ts";
+} from "@mzhub/cortex";
 ```

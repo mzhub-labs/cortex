@@ -1,12 +1,12 @@
 # Cost Guide
 
-Understanding and optimizing the costs of running mem-ts in production.
+Understanding and optimizing the costs of running cortex in production.
 
 ---
 
 ## Overview
 
-mem-ts requires an LLM API for fact extraction. All other features are either free or use optional paid services.
+cortex requires an LLM API for fact extraction. All other features are either free or use optional paid services.
 
 **Minimum cost:** ~$0.002/user/day (10 messages)  
 **Full features:** ~$0.005/user/day (10 messages + synthesis)
@@ -43,7 +43,7 @@ Embeddings enable semantic search. They are **completely optional**.
 | OpenAI   | `text-embedding-3-small` | $0.00002           | $0.000001             |
 | OpenAI   | `text-embedding-3-large` | $0.00013           | $0.0000065            |
 
-**Note:** mem-ts works without embeddings using importance + recency scoring.
+**Note:** cortex works without embeddings using importance + recency scoring.
 
 ---
 
@@ -114,7 +114,7 @@ const memory = new MemoryOS({
 ### 2. Limit Extractions with BudgetManager
 
 ```typescript
-import { BudgetManager } from "@mzhub/mem-ts";
+import { BudgetManager } from "@mzhub/cortex";
 
 const budget = new BudgetManager({
   maxTokensPerUserPerDay: 50000, // Cap daily token usage
@@ -163,7 +163,7 @@ With HMM compression:
 **Savings: 90%** on context injection costs.
 
 ```typescript
-import { HierarchicalMemory } from "@mzhub/mem-ts";
+import { HierarchicalMemory } from "@mzhub/cortex";
 
 const hmm = new HierarchicalMemory(adapter, provider, { enabled: true });
 
@@ -195,7 +195,7 @@ For maximum savings, use only the required extraction:
 // Minimal setup - no optional LLM workers
 const memory = new MemoryOS({
   llm: { provider: "groq", model: "llama-3.1-8b-instant" },
-  adapter: new JSONFileAdapter({ path: "./.mem-ts" }),
+  adapter: new JSONFileAdapter({ path: "./.cortex" }),
 });
 
 // DON'T use:
@@ -235,12 +235,12 @@ const memory = new MemoryOS({
 
 ---
 
-## Comparison: mem-ts vs Alternatives
+## Comparison: cortex vs Alternatives
 
 | Approach                  | Monthly Cost (1K users) | Notes              |
 | ------------------------- | ----------------------- | ------------------ |
-| **mem-ts (minimal)**      | **$60**                 | Just extraction    |
-| **mem-ts (full)**         | **$150**                | All brain features |
+| **cortex (minimal)**      | **$60**                 | Just extraction    |
+| **cortex (full)**         | **$150**                | All brain features |
 | Full conversation storage | $200-500                | Token-heavy        |
 | Vector DB + RAG           | $100-300                | Embedding costs    |
 | Custom memory system      | $500+                   | Engineering time   |
@@ -252,7 +252,7 @@ const memory = new MemoryOS({
 Track your actual usage:
 
 ```typescript
-import { TokenTracker } from "@mzhub/mem-ts";
+import { TokenTracker } from "@mzhub/cortex";
 
 const tracker = new TokenTracker();
 

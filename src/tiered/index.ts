@@ -1,8 +1,3 @@
-/**
- * Tiered storage adapter for mem-ts.
- * Manages automatic data flow between hot, warm, and cold storage tiers.
- */
-
 import { BaseAdapter } from "../adapters/BaseAdapter";
 import type {
   MemoryFact,

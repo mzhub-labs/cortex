@@ -1,6 +1,6 @@
 # Security
 
-mem-ts includes built-in security features to protect against common attack vectors in AI memory systems.
+cortex includes built-in security features to protect against common attack vectors in AI memory systems.
 
 ---
 
@@ -21,7 +21,7 @@ If stored blindly and retrieved later, this could be injected into the system pr
 **1. Security Scanner**
 
 ```typescript
-import { SecurityScanner } from "mem-ts";
+import { SecurityScanner } from "cortex";
 
 const scanner = new SecurityScanner({
   detectInjection: true,
@@ -105,7 +105,7 @@ A malicious or buggy implementation could trigger unlimited background extractio
 ### The Protection
 
 ```typescript
-import { BudgetManager } from "mem-ts";
+import { BudgetManager } from "cortex";
 
 const budget = new BudgetManager({
   maxTokensPerUserPerDay: 100000, // Cap daily token usage
@@ -145,7 +145,7 @@ Storing everything forever creates privacy concerns:
 ### The Protection
 
 ```typescript
-import { DecayManager } from "mem-ts";
+import { DecayManager } from "cortex";
 
 const decay = new DecayManager({
   enabled: true,
@@ -223,7 +223,7 @@ await memory.getFacts("user-b"); // Only sees user-b's data
 
 **Storage is physically separated:**
 
-- JSONFile: `/.mem-ts/users/{userId}/`
+- JSONFile: `/.cortex/users/{userId}/`
 - Databases: All queries filter by `user_id` column/field
 - Redis: Keys prefixed with `memts:{userId}:`
 

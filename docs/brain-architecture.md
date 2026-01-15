@@ -1,6 +1,6 @@
 # Brain Architecture
 
-mem-ts implements a biologically-inspired memory system. Each component maps to a real brain function.
+cortex implements a biologically-inspired memory system. Each component maps to a real brain function.
 
 ---
 
@@ -30,7 +30,7 @@ mem-ts implements a biologically-inspired memory system. Each component maps to 
 
 **Biological Function:** Tags memories with emotional weight to ensure survival-critical information is never forgotten.
 
-**mem-ts Implementation:** Every fact has an `importance` score (1-10).
+**cortex Implementation:** Every fact has an `importance` score (1-10).
 
 ```typescript
 interface MemoryFact {
@@ -63,7 +63,7 @@ return [...criticalFacts, ...regularFacts];
 
 **Biological Function:** Links memories to specific events (where/when you learned something).
 
-**mem-ts Implementation:** Facts track their origin conversation.
+**cortex Implementation:** Facts track their origin conversation.
 
 ```typescript
 interface MemoryFact {
@@ -82,7 +82,7 @@ interface MemoryFact {
 
 **Biological Function:** "Neurons that fire together, wire together." Frequently accessed memories become stronger.
 
-**mem-ts Implementation:** Track access patterns.
+**cortex Implementation:** Track access patterns.
 
 ```typescript
 interface MemoryFact {
@@ -103,10 +103,10 @@ interface MemoryFact {
 
 **Biological Function:** During sleep, the brain consolidates memories and finds patterns across experiences.
 
-**mem-ts Implementation:** `DeepSleepWorker` runs on a schedule.
+**cortex Implementation:** `DeepSleepWorker` runs on a schedule.
 
 ```typescript
-import { DeepSleepWorker } from "@mzhub/mem-ts";
+import { DeepSleepWorker } from "@mzhub/cortex";
 
 const worker = new DeepSleepWorker(provider, adapter, {
   lookbackHours: 24,
@@ -128,7 +128,7 @@ await worker.runSynthesisCycle(userId);
 
 **Biological Function:** Memories progress from short-term → working → long-term.
 
-**mem-ts Implementation:** `ConsolidationWorker` manages transitions.
+**cortex Implementation:** `ConsolidationWorker` manages transitions.
 
 ```typescript
 interface MemoryFact {
@@ -143,7 +143,7 @@ interface MemoryFact {
 - **Long-term:** Consolidated (> 24 hours, > 5 accesses)
 
 ```typescript
-import { ConsolidationWorker } from "@mzhub/mem-ts";
+import { ConsolidationWorker } from "@mzhub/cortex";
 
 const consolidator = new ConsolidationWorker(adapter, {
   shortTermHours: 1,
@@ -161,10 +161,10 @@ await consolidator.pruneShortTerm(userId, 24); // Delete unused short-term
 
 **Biological Function:** Prefrontal cortex detects logical conflicts.
 
-**mem-ts Implementation:** `ContradictionDetector` flags conflicts before storage.
+**cortex Implementation:** `ContradictionDetector` flags conflicts before storage.
 
 ```typescript
-import { ContradictionDetector } from "@mzhub/mem-ts";
+import { ContradictionDetector } from "@mzhub/cortex";
 
 const detector = new ContradictionDetector(adapter, provider, {
   autoResolve: true,
@@ -184,7 +184,7 @@ if (result.hasContradictions) {
 
 **Biological Function:** Related concepts are linked in the brain's associative cortex.
 
-**mem-ts Implementation:** Facts can reference related facts.
+**cortex Implementation:** Facts can reference related facts.
 
 ```typescript
 interface MemoryFact {
@@ -193,7 +193,7 @@ interface MemoryFact {
 ```
 
 ```typescript
-import { AssociationEngine } from "@mzhub/mem-ts";
+import { AssociationEngine } from "@mzhub/cortex";
 
 const engine = new AssociationEngine(adapter, provider, {
   similarityThreshold: 0.7,
@@ -216,10 +216,10 @@ const { nodes, edges } = await engine.getGraph(userId);
 
 **Biological Function:** The brain recognizes temporal/behavioral patterns.
 
-**mem-ts Implementation:** `PredictiveEngine` detects patterns.
+**cortex Implementation:** `PredictiveEngine` detects patterns.
 
 ```typescript
-import { PredictiveEngine } from "@mzhub/mem-ts";
+import { PredictiveEngine } from "@mzhub/cortex";
 
 const predictor = new PredictiveEngine(adapter, provider, {
   minOccurrences: 3,
@@ -239,7 +239,7 @@ const predictions = await predictor.getPredictions(userId);
 
 **Biological Function:** Memories carry emotional context.
 
-**mem-ts Implementation:** Facts track sentiment.
+**cortex Implementation:** Facts track sentiment.
 
 ```typescript
 interface MemoryFact {
@@ -265,7 +265,7 @@ import {
   ContradictionDetector,
   AssociationEngine,
   PredictiveEngine,
-} from "@mzhub/mem-ts";
+} from "@mzhub/cortex";
 
 // Core memory system
 const memory = new MemoryOS({ llm, adapter });

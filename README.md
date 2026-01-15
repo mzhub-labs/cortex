@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="logo.png" alt="mem-ts" width="180" />
+  <img src="logo.png" alt="cortex" width="180" />
 </p>
 
-<h1 align="center">mem-ts</h1>
+<h1 align="center">cortex</h1>
 
 <p align="center">
   <strong>Persistent memory for AI agents — the digital brain</strong><br/>
@@ -71,7 +71,7 @@ They cannot answer: _"What is true about this user right now?"_
 
 ## The Solution: Brain-Inspired Architecture
 
-mem-ts doesn't just store facts. It thinks like a brain.
+cortex doesn't just store facts. It thinks like a brain.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -95,7 +95,7 @@ mem-ts doesn't just store facts. It thinks like a brain.
                            ▼
             ┌─────────────────────────────┐
             │      🔄 SLOW BRAIN          │
-            │      (mem-ts)               │
+            │      (cortex)               │
             │                             │
             │  • Extract facts            │
             │  • Detect contradictions    │
@@ -126,17 +126,17 @@ mem-ts doesn't just store facts. It thinks like a brain.
 ### Install
 
 ```bash
-npm install @mzhub/mem-ts
+npm install @mzhub/cortex
 ```
 
 ### Use
 
 ```typescript
-import { MemoryOS, JSONFileAdapter } from "@mzhub/mem-ts";
+import { MemoryOS, JSONFileAdapter } from "@mzhub/cortex";
 
 const memory = new MemoryOS({
   llm: { provider: "openai", apiKey: process.env.OPENAI_API_KEY },
-  adapter: new JSONFileAdapter({ path: "./.mem-ts" }),
+  adapter: new JSONFileAdapter({ path: "./.cortex" }),
 });
 
 async function chat(userId, message) {
@@ -165,7 +165,7 @@ That's it. The agent now remembers.
 For advanced use cases, enable the **Memory Pyramid** — compressing thousands of facts into wisdom.
 
 ```typescript
-import { HierarchicalMemory } from "@mzhub/mem-ts";
+import { HierarchicalMemory } from "@mzhub/cortex";
 
 const hmm = new HierarchicalMemory(adapter, provider, { enabled: true });
 
@@ -207,7 +207,7 @@ await hmm.synthesizePatterns(userId);
 
 ## Before and After
 
-### Without mem-ts
+### Without cortex
 
 ```
 User: "Recommend a restaurant"
@@ -221,7 +221,7 @@ Bot:  "Sorry, I don't have memory of previous conversations"
 - Inconsistent behavior
 - User frustration
 
-### With mem-ts
+### With cortex
 
 ```
 User: "Recommend a restaurant"
@@ -237,7 +237,7 @@ Bot:  "Here are some vegan spots near Berlin..."
 
 ## What Gets Stored
 
-mem-ts stores facts, not chat logs.
+cortex stores facts, not chat logs.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -304,7 +304,7 @@ const budget = new BudgetManager({
 - Stateless demos
 - Replacing vector databases entirely
 
-mem-ts complements vectors. It does not replace them.
+cortex complements vectors. It does not replace them.
 
 ---
 

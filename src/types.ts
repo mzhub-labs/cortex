@@ -1,14 +1,4 @@
-/**
- * Core type definitions for mem-ts Memory OS
- */
 
-// ============================================================================
-// Memory Facts (Subject → Predicate → Object)
-// ============================================================================
-
-/**
- * A single memory fact representing a relationship between entities
- */
 export interface MemoryFact {
   /** Unique identifier (UUID) */
   id: string;

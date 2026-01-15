@@ -165,7 +165,7 @@ Use structured facts for: _"What are the user's current preferences?"_
 
 ## Implementation
 
-**[mem-ts](https://github.com/your-repo/mem-ts)** implements this pattern:
+**[cortex](https://github.com/MZHub-Labs/cortex)** implements this pattern:
 
 - Facts stored as `Subject → Predicate → Object` with timestamps
 - Automatic conflict detection during extraction
@@ -174,7 +174,7 @@ Use structured facts for: _"What are the user's current preferences?"_
 - Memory decay for temporary facts
 
 ```typescript
-// mem-ts handles the complexity
+// cortex handles the complexity
 const context = await memory.hydrate(userId, message);
 // Returns only CURRENT facts, conflicts already resolved
 ```

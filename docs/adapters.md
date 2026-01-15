@@ -1,6 +1,6 @@
 # Storage Adapters
 
-mem-ts supports multiple storage backends through adapters. Choose based on your deployment needs.
+cortex supports multiple storage backends through adapters. Choose based on your deployment needs.
 
 ---
 
@@ -9,7 +9,7 @@ mem-ts supports multiple storage backends through adapters. Choose based on your
 For development and testing. Data is lost when the process exits.
 
 ```typescript
-import { InMemoryAdapter } from "mem-ts";
+import { InMemoryAdapter } from "cortex";
 
 const adapter = new InMemoryAdapter();
 ```
@@ -27,17 +27,17 @@ const adapter = new InMemoryAdapter();
 Stores data as JSON files on disk. Simple and portable.
 
 ```typescript
-import { JSONFileAdapter } from "mem-ts/adapters";
+import { JSONFileAdapter } from "cortex/adapters";
 
 const adapter = new JSONFileAdapter({
-  path: "./.mem-ts", // Directory for storage
+  path: "./.cortex", // Directory for storage
 });
 ```
 
 **File structure:**
 
 ```
-.mem-ts/
+.cortex/
 ├── users/
 │   ├── user123/
 │   │   ├── facts.json
@@ -60,7 +60,7 @@ const adapter = new JSONFileAdapter({
 Production-ready adapter for MongoDB.
 
 ```typescript
-import { MongoDBAdapter } from "mem-ts";
+import { MongoDBAdapter } from "cortex";
 
 const adapter = new MongoDBAdapter({
   uri: process.env.MONGODB_URI,
@@ -92,7 +92,7 @@ const adapter = new MongoDBAdapter({
 Production-ready adapter for PostgreSQL.
 
 ```typescript
-import { PostgresAdapter } from "mem-ts";
+import { PostgresAdapter } from "cortex";
 
 const adapter = new PostgresAdapter({
   connectionString: process.env.DATABASE_URL,
@@ -119,7 +119,7 @@ const adapter = new PostgresAdapter({
 Serverless-friendly adapter using Upstash Redis REST API.
 
 ```typescript
-import { UpstashRedisAdapter } from "mem-ts";
+import { UpstashRedisAdapter } from "cortex";
 
 const adapter = new UpstashRedisAdapter({
   url: process.env.UPSTASH_REDIS_URL,
@@ -148,8 +148,8 @@ const adapter = new UpstashRedisAdapter({
 Combines hot (fast) and cold (persistent) storage with automatic data movement.
 
 ```typescript
-import { TieredAdapter, InMemoryAdapter } from 'mem-ts';
-import { PostgresAdapter } from 'mem-ts/adapters';
+import { TieredAdapter, InMemoryAdapter } from 'cortex';
+import { PostgresAdapter } from 'cortex/adapters';
 
 const adapter = new TieredAdapter({
   hotAdapter: new InMemoryAdapter(),        // Fast, limited
@@ -192,7 +192,7 @@ const stats = await adapter.getStorageStats(userId);
 Extend `BaseAdapter` and implement all methods:
 
 ```typescript
-import { BaseAdapter, MemoryFact, ConversationExchange, Session } from 'mem-ts';
+import { BaseAdapter, MemoryFact, ConversationExchange, Session } from 'cortex';
 
 class MyAdapter extends BaseAdapter {
   async initialize(): Promise<void> { /* connect */ }
