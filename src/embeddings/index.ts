@@ -1,5 +1,5 @@
 /**
- * Embeddings support for mem-ts.
+ * Embeddings support for cortex.
  * Provides vector embeddings for semantic search.
  */
 
@@ -79,7 +79,7 @@ export class OpenAIEmbeddingProvider extends BaseEmbeddingProvider {
       throw new Error(
         `OpenAI embedding error: ${
           (error as { error?: { message?: string } }).error?.message
-        }`
+        }`,
       );
     }
 
@@ -130,7 +130,7 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 export function findTopK(
   query: number[],
   candidates: Array<{ id: string; vector: number[] }>,
-  k: number
+  k: number,
 ): Array<{ id: string; similarity: number }> {
   const scored = candidates.map((c) => ({
     id: c.id,
@@ -166,7 +166,7 @@ export class InMemoryVectorStore {
   search(
     userId: string,
     query: number[],
-    k: number = 10
+    k: number = 10,
   ): Array<{ id: string; similarity: number }> {
     const userVectors = this.vectors.get(userId);
     if (!userVectors || userVectors.size === 0) return [];
@@ -175,7 +175,7 @@ export class InMemoryVectorStore {
       ([id, vector]) => ({
         id,
         vector,
-      })
+      }),
     );
 
     return findTopK(query, candidates, k);
@@ -207,7 +207,7 @@ export class InMemoryVectorStore {
  * Create an embedding provider
  */
 export function createEmbeddingProvider(
-  config: EmbeddingConfig
+  config: EmbeddingConfig,
 ): BaseEmbeddingProvider {
   switch (config.provider) {
     case "openai":

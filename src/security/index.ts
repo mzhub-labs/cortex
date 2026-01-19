@@ -1,5 +1,5 @@
 /**
- * Security utilities for mem-ts.
+ * Security utilities for cortex.
  * Protects against prompt injection and data poisoning.
  */
 
@@ -118,7 +118,7 @@ export class SecurityScanner {
           if (this.config.redactPii) {
             sanitized = sanitized.replace(
               pattern,
-              `[REDACTED_${piiType.toUpperCase()}]`
+              `[REDACTED_${piiType.toUpperCase()}]`,
             );
           }
         }
@@ -128,7 +128,7 @@ export class SecurityScanner {
     const hasBlockingIssue = issues.some(
       (i) =>
         (i.type === "injection" && this.config.blockInjectedFacts) ||
-        i.type === "custom"
+        i.type === "custom",
     );
 
     return {

@@ -62,8 +62,8 @@ declare global {
  * @example
  * ```typescript
  * import express from 'express';
- * import { MemoryOS } from 'mem-ts';
- * import { createMemoryMiddleware } from 'mem-ts/middleware';
+ * import { MemoryOS } from 'cortex';
+ * import { createMemoryMiddleware } from 'cortex/middleware';
  *
  * const app = express();
  * const memory = new MemoryOS({ ... });
@@ -81,7 +81,7 @@ declare global {
  */
 export function createMemoryMiddleware(
   memory: MemoryOS,
-  options: MemoryMiddlewareOptions = {}
+  options: MemoryMiddlewareOptions = {},
 ) {
   const {
     getUserId = (req) => req.user?.id || req.user?.userId || req.body?.userId,
@@ -92,7 +92,7 @@ export function createMemoryMiddleware(
   return async (
     req: MiddlewareRequest,
     res: MiddlewareResponse,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const userId = getUserId(req);
@@ -139,7 +139,7 @@ export function digestAfterResponse(
   memory: MemoryOS,
   userId: string,
   userMessage: string,
-  assistantResponse: string
+  assistantResponse: string,
 ): void {
   // Fire and forget
   setImmediate(() => {
@@ -153,7 +153,7 @@ export function digestAfterResponse(
  * @example
  * ```typescript
  * // pages/api/chat.ts or app/api/chat/route.ts
- * import { withMemory } from 'mem-ts/middleware';
+ * import { withMemory } from 'cortex/middleware';
  *
  * export const POST = withMemory(memory, async (req, context) => {
  *   const { message } = await req.json();
@@ -165,14 +165,14 @@ export function digestAfterResponse(
  * ```
  */
 export function withMemory<
-  T extends { json: () => Promise<{ message?: string; userId?: string }> }
+  T extends { json: () => Promise<{ message?: string; userId?: string }> },
 >(
   memory: MemoryOS,
   handler: (req: T, context: HydratedContext) => Promise<Response>,
   options: {
     getUserId?: (req: T) => string | null | undefined;
     getMessage?: (body: { message?: string }) => string | undefined;
-  } = {}
+  } = {},
 ) {
   return async (req: T): Promise<Response> => {
     try {
@@ -183,7 +183,7 @@ export function withMemory<
       if (!userId || !message) {
         return new Response(
           JSON.stringify({ error: "userId and message are required" }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
+          { status: 400, headers: { "Content-Type": "application/json" } },
         );
       }
 

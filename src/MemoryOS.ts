@@ -35,12 +35,12 @@ export interface MemoryOSConfig {
  *
  * @example
  * ```typescript
- * import { MemoryOS } from 'mem-ts';
- * import { JSONFileAdapter } from 'mem-ts/adapters';
+ * import { MemoryOS } from 'cortex';
+ * import { JSONFileAdapter } from 'cortex/adapters';
  *
  * const memory = new MemoryOS({
  *   llm: { provider: 'openai', apiKey: 'sk-...', model: 'gpt-4o-mini' },
- *   adapter: new JSONFileAdapter({ path: './.mem-ts' })
+ *   adapter: new JSONFileAdapter({ path: './.cortex' })
  * });
  *
  * // Before LLM call - get context
@@ -140,7 +140,7 @@ export class MemoryOS {
   async hydrate(
     userId: string,
     message: string,
-    options?: HydrateOptions
+    options?: HydrateOptions,
   ): Promise<HydratedContext> {
     await this.ensureInitialized();
     return this.hydrator.hydrate(userId, message, options);
@@ -202,7 +202,7 @@ export class MemoryOS {
   async digestSync(
     userId: string,
     userMessage: string,
-    assistantResponse: string
+    assistantResponse: string,
   ): Promise<ExtractionResult> {
     await this.ensureInitialized();
     const sessionId = await this.ensureSession(userId);
@@ -221,7 +221,7 @@ export class MemoryOS {
       userId,
       sessionId,
       userMessage,
-      assistantResponse
+      assistantResponse,
     );
   }
 
@@ -246,7 +246,7 @@ export class MemoryOS {
     predicate: string,
     object: string,
     confidence = 1.0,
-    importance = 5
+    importance = 5,
   ): Promise<MemoryFact> {
     await this.ensureInitialized();
     const sessionId = await this.ensureSession(userId);
@@ -268,7 +268,7 @@ export class MemoryOS {
   async deleteFact(
     userId: string,
     factId: string,
-    reason?: string
+    reason?: string,
   ): Promise<void> {
     await this.ensureInitialized();
     return this.adapter.deleteFact(userId, factId, reason);
@@ -358,7 +358,7 @@ export class MemoryOS {
   async getHistory(
     userId: string,
     limit?: number,
-    sessionId?: string
+    sessionId?: string,
   ): Promise<ConversationExchange[]> {
     await this.ensureInitialized();
     return this.adapter.getConversationHistory(userId, limit, sessionId);

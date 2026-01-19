@@ -1,5 +1,5 @@
 /**
- * Auto-summarization manager for mem-ts.
+ * Auto-summarization manager for cortex.
  * Triggers conversation summarization after a threshold of messages.
  */
 
@@ -37,7 +37,7 @@ export class AutoSummarizer {
   constructor(
     adapter: BaseAdapter,
     provider: BaseProvider | null,
-    config: AutoSummarizeConfig = {}
+    config: AutoSummarizeConfig = {},
   ) {
     this.adapter = adapter;
     this.provider = provider;
@@ -75,14 +75,14 @@ export class AutoSummarizer {
    */
   async summarizeSession(
     userId: string,
-    sessionId: string
+    sessionId: string,
   ): Promise<string | null> {
     if (!this.provider) return null;
 
     const history = await this.adapter.getConversationHistory(
       userId,
       this.config.threshold,
-      sessionId
+      sessionId,
     );
 
     if (history.length < 5) return null; // Not enough to summarize
@@ -129,7 +129,7 @@ export class AutoSummarizer {
    */
   async forceSummarize(
     userId: string,
-    sessionId: string
+    sessionId: string,
   ): Promise<string | null> {
     this.messageCounters.set(`${userId}:${sessionId}`, 0);
     return this.summarizeSession(userId, sessionId);

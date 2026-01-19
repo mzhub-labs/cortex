@@ -21,7 +21,7 @@ Analyze the conversation and extract facts that should be remembered long-term. 
 - Job: "I work at Google as an engineer" → (User, WORKS_AT, Google), (User, JOB_TITLE, Engineer)
 - Relationships: "My wife Sarah" → (User, SPOUSE, Sarah)
 - Tech preferences: "I use React and TypeScript" → (User, USES_TECH, React), (User, USES_TECH, TypeScript)
-- Projects: "Working on a memory system called mem-ts" → (User, WORKING_ON, mem-ts)
+- Projects: "Working on a memory system called cortex" → (User, WORKING_ON, cortex)
 - Important dates: "My birthday is March 15" → (User, BIRTHDAY, March 15)
 
 ## What to IGNORE:
@@ -88,7 +88,7 @@ Detect the emotional context when the fact was shared:
  */
 export function buildExtractionPrompt(
   currentFacts: Array<{ subject: string; predicate: string; object: string }>,
-  conversation: Array<{ role: "user" | "assistant"; content: string }>
+  conversation: Array<{ role: "user" | "assistant"; content: string }>,
 ): string {
   const factsSection =
     currentFacts.length > 0
@@ -99,7 +99,7 @@ export function buildExtractionPrompt(
 
   const conversationSection = conversation
     .map(
-      (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+      (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
     )
     .join("\n");
 
@@ -126,11 +126,11 @@ Keep the summary under 200 words. Focus on what would be useful context for futu
  * Build a prompt for conversation summarization
  */
 export function buildSummarizationPrompt(
-  conversation: Array<{ role: "user" | "assistant"; content: string }>
+  conversation: Array<{ role: "user" | "assistant"; content: string }>,
 ): string {
   const conversationText = conversation
     .map(
-      (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+      (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
     )
     .join("\n");
 

@@ -19,7 +19,7 @@
  *   - Ephemeral conversation buffer
  *   - Auto-flushed after extraction
  *
- * This is an OPTIONAL wrapper - you can use mem-ts without HMM.
+ * This is an OPTIONAL wrapper - you can use cortex without HMM.
  */
 
 import type { MemoryFact } from "../types";
@@ -79,7 +79,7 @@ Rules:
 4. Return empty arrays if no clear patterns found`;
 
 /**
- * Hierarchical Memory Manager - Optional HMM mode for mem-ts
+ * Hierarchical Memory Manager - Optional HMM mode for cortex
  */
 export class HierarchicalMemory {
   private adapter: BaseAdapter;
@@ -89,7 +89,7 @@ export class HierarchicalMemory {
   constructor(
     adapter: BaseAdapter,
     provider?: BaseProvider,
-    config: HierarchicalConfig = {}
+    config: HierarchicalConfig = {},
   ) {
     this.adapter = adapter;
     this.provider = provider;
@@ -118,7 +118,7 @@ export class HierarchicalMemory {
    */
   async hydrateHierarchical(
     userId: string,
-    maxFacts: number = 20
+    maxFacts: number = 20,
   ): Promise<{
     coreBeliefs: MemoryFact[];
     patterns: MemoryFact[];
@@ -144,7 +144,7 @@ export class HierarchicalMemory {
     const allSelected = [...coreBeliefs, ...patterns, ...facts];
     const totalTokens = allSelected.reduce(
       (sum, f) => sum + Math.ceil((f.predicate.length + f.object.length) / 4),
-      0
+      0,
     );
 
     return { coreBeliefs, patterns, facts, totalTokens };
@@ -156,7 +156,7 @@ export class HierarchicalMemory {
   compileHierarchicalPrompt(
     coreBeliefs: MemoryFact[],
     patterns: MemoryFact[],
-    facts: MemoryFact[]
+    facts: MemoryFact[],
   ): string {
     const sections: string[] = [];
 
@@ -190,7 +190,7 @@ export class HierarchicalMemory {
   async promoteToCore(
     userId: string,
     factId: string,
-    reason?: string
+    reason?: string,
   ): Promise<void> {
     await this.adapter.updateFact(userId, factId, {
       memoryLevel: "core_belief",
@@ -276,7 +276,7 @@ export class HierarchicalMemory {
 
       if (this.config.debug) {
         console.log(
-          `[HMM] Created ${patternsCreated} patterns, ${promotions} promotions`
+          `[HMM] Created ${patternsCreated} patterns, ${promotions} promotions`,
         );
       }
 

@@ -1,5 +1,5 @@
 /**
- * Token economics utilities for mem-ts.
+ * Token economics utilities for cortex.
  * Provides token estimation, compression, and analytics.
  */
 
@@ -70,7 +70,7 @@ export function estimateTokens(text: string): number {
  */
 export function estimateCost(
   usage: { inputTokens: number; outputTokens: number },
-  model: string
+  model: string,
 ): number {
   const pricing = TOKEN_PRICING[model] || TOKEN_PRICING["gpt-4o-mini"];
 
@@ -116,7 +116,7 @@ export class TokenTracker {
    */
   recordCompressionSavings(
     originalTokens: number,
-    compressedTokens: number
+    compressedTokens: number,
   ): void {
     this.tokensSavedByCompression += originalTokens - compressedTokens;
   }
@@ -127,11 +127,11 @@ export class TokenTracker {
   getAnalytics(): TokenAnalytics {
     const totalInputTokens = this.usages.reduce(
       (sum, u) => sum + u.inputTokens,
-      0
+      0,
     );
     const totalOutputTokens = this.usages.reduce(
       (sum, u) => sum + u.outputTokens,
-      0
+      0,
     );
     const totalCalls = this.usages.length;
 
@@ -170,7 +170,7 @@ export function compressConversation(
   options: {
     keepRecent?: number;
     maxSummaryTokens?: number;
-  } = {}
+  } = {},
 ): {
   messages: Array<{ role: string; content: string }>;
   originalTokens: number;
@@ -182,14 +182,14 @@ export function compressConversation(
   if (messages.length <= keepRecent) {
     const tokens = messages.reduce(
       (sum, m) => sum + estimateTokens(m.content),
-      0
+      0,
     );
     return { messages, originalTokens: tokens, compressedTokens: tokens };
   }
 
   const originalTokens = messages.reduce(
     (sum, m) => sum + estimateTokens(m.content),
-    0
+    0,
   );
 
   // Keep recent messages
@@ -216,7 +216,7 @@ export function compressConversation(
   const compressedMessages = [summaryMessage, ...recentMessages];
   const compressedTokens = compressedMessages.reduce(
     (sum, m) => sum + estimateTokens(m.content),
-    0
+    0,
   );
 
   return {

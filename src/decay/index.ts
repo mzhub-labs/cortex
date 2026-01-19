@@ -1,5 +1,5 @@
 /**
- * Memory decay utilities for mem-ts.
+ * Memory decay utilities for cortex.
  * Prevents the "stalker effect" by forgetting irrelevant facts over time.
  */
 
@@ -162,7 +162,7 @@ export class DecayManager {
     if (this.config.ephemeralPredicates.includes(predicateUpper)) {
       return new Date(
         lastReinforced.getTime() +
-          this.config.ephemeralTtlHours * 60 * 60 * 1000
+          this.config.ephemeralTtlHours * 60 * 60 * 1000,
       );
     }
 
@@ -198,7 +198,7 @@ export class DecayManager {
    */
   filterByWeight(
     facts: FactWithDecay[],
-    minWeight: number = 0.1
+    minWeight: number = 0.1,
   ): FactWithDecay[] {
     return facts.filter((fact) => {
       const weight = this.calculateDecayWeight(fact);

@@ -16,7 +16,7 @@ interface JSONUserData {
 }
 
 export interface JSONFileAdapterConfig {
-  /** Base path for storing JSON files (default: ./.mem-ts) */
+  /** Base path for storing JSON files (default: ./.cortex) */
   path?: string;
   /** Pretty print JSON files (default: true in dev, false in prod) */
   prettyPrint?: boolean;
@@ -27,7 +27,7 @@ export interface JSONFileAdapterConfig {
  * Stores each user's data in separate JSON files for portability.
  *
  * Directory structure:
- * .mem-ts/
+ * .cortex/
  * ├── users/
  * │   ├── {userId}/
  * │   │   ├── facts.json
@@ -40,7 +40,7 @@ export class JSONFileAdapter extends BaseAdapter {
 
   constructor(config: JSONFileAdapterConfig = {}) {
     super();
-    this.basePath = config.path || "./.mem-ts";
+    this.basePath = config.path || "./.cortex";
     this.prettyPrint =
       config.prettyPrint ?? process.env.NODE_ENV !== "production";
   }
@@ -71,7 +71,7 @@ export class JSONFileAdapter extends BaseAdapter {
   private async readFile<T>(
     userId: string,
     filename: string,
-    defaultValue: T
+    defaultValue: T,
   ): Promise<T> {
     const filePath = path.join(this.getUserPath(userId), filename);
     try {
@@ -88,7 +88,7 @@ export class JSONFileAdapter extends BaseAdapter {
   private async writeFile<T>(
     userId: string,
     filename: string,
-    data: T
+    data: T,
   ): Promise<void> {
     await this.ensureUserDir(userId);
     const filePath = path.join(this.getUserPath(userId), filename);
@@ -161,7 +161,7 @@ export class JSONFileAdapter extends BaseAdapter {
 
   async getFactById(
     userId: string,
-    factId: string
+    factId: string,
   ): Promise<MemoryFact | null> {
     await this.ensureInitialized();
     const facts = await this.readFile<MemoryFact[]>(userId, "facts.json", []);
@@ -170,7 +170,7 @@ export class JSONFileAdapter extends BaseAdapter {
 
   async upsertFact(
     userId: string,
-    fact: Omit<MemoryFact, "id" | "createdAt" | "updatedAt">
+    fact: Omit<MemoryFact, "id" | "createdAt" | "updatedAt">,
   ): Promise<MemoryFact> {
     await this.ensureInitialized();
     const facts = await this.readFile<MemoryFact[]>(userId, "facts.json", []);
@@ -180,7 +180,7 @@ export class JSONFileAdapter extends BaseAdapter {
       (f) =>
         f.subject === fact.subject &&
         f.predicate === fact.predicate &&
-        f.invalidatedAt === null
+        f.invalidatedAt === null,
     );
 
     const now = new Date();
@@ -212,7 +212,7 @@ export class JSONFileAdapter extends BaseAdapter {
   async updateFact(
     userId: string,
     factId: string,
-    updates: Partial<MemoryFact>
+    updates: Partial<MemoryFact>,
   ): Promise<MemoryFact> {
     await this.ensureInitialized();
     const facts = await this.readFile<MemoryFact[]>(userId, "facts.json", []);
@@ -236,7 +236,7 @@ export class JSONFileAdapter extends BaseAdapter {
   async deleteFact(
     userId: string,
     factId: string,
-    _reason?: string
+    _reason?: string,
   ): Promise<void> {
     await this.ensureInitialized();
     const facts = await this.readFile<MemoryFact[]>(userId, "facts.json", []);
@@ -262,13 +262,13 @@ export class JSONFileAdapter extends BaseAdapter {
   async getConversationHistory(
     userId: string,
     limit?: number,
-    sessionId?: string
+    sessionId?: string,
   ): Promise<ConversationExchange[]> {
     await this.ensureInitialized();
     let conversations = await this.readFile<ConversationExchange[]>(
       userId,
       "conversations.json",
-      []
+      [],
     );
 
     if (sessionId) {
@@ -287,13 +287,13 @@ export class JSONFileAdapter extends BaseAdapter {
 
   async saveConversation(
     userId: string,
-    exchange: Omit<ConversationExchange, "id">
+    exchange: Omit<ConversationExchange, "id">,
   ): Promise<ConversationExchange> {
     await this.ensureInitialized();
     const conversations = await this.readFile<ConversationExchange[]>(
       userId,
       "conversations.json",
-      []
+      [],
     );
 
     const newExchange: ConversationExchange = {
@@ -308,7 +308,7 @@ export class JSONFileAdapter extends BaseAdapter {
     const sessions = await this.readFile<Session[]>(
       userId,
       "sessions.json",
-      []
+      [],
     );
     const sessionIndex = sessions.findIndex((s) => s.id === exchange.sessionId);
     if (sessionIndex >= 0) {
@@ -342,7 +342,7 @@ export class JSONFileAdapter extends BaseAdapter {
     const sessions = await this.readFile<Session[]>(
       userId,
       "sessions.json",
-      []
+      [],
     );
     return sessions.find((s) => s.id === sessionId) || null;
   }
@@ -352,7 +352,7 @@ export class JSONFileAdapter extends BaseAdapter {
     const sessions = await this.readFile<Session[]>(
       userId,
       "sessions.json",
-      []
+      [],
     );
 
     const session: Session = {
@@ -371,13 +371,13 @@ export class JSONFileAdapter extends BaseAdapter {
   async endSession(
     userId: string,
     sessionId: string,
-    summary?: string
+    summary?: string,
   ): Promise<Session> {
     await this.ensureInitialized();
     const sessions = await this.readFile<Session[]>(
       userId,
       "sessions.json",
-      []
+      [],
     );
     const index = sessions.findIndex((s) => s.id === sessionId);
 
@@ -407,7 +407,7 @@ export class JSONFileAdapter extends BaseAdapter {
       conversations: await this.readFile<ConversationExchange[]>(
         userId,
         "conversations.json",
-        []
+        [],
       ),
       sessions: await this.readFile<Session[]>(userId, "sessions.json", []),
     };

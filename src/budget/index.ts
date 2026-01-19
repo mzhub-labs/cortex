@@ -1,5 +1,5 @@
 /**
- * Budget management for mem-ts.
+ * Budget management for cortex.
  * Prevents runaway costs from infinite loops or abuse.
  */
 
@@ -96,7 +96,7 @@ export class BudgetManager {
    */
   canUseTokens(
     userId: string,
-    estimatedTokens: number
+    estimatedTokens: number,
   ): { allowed: boolean; reason?: string } {
     const state = this.getUserState(userId);
 
@@ -142,11 +142,11 @@ export class BudgetManager {
     return {
       tokensRemaining: Math.max(
         0,
-        this.config.maxTokensPerUserPerDay - state.tokensUsedToday
+        this.config.maxTokensPerUserPerDay - state.tokensUsedToday,
       ),
       extractionsRemaining: Math.max(
         0,
-        this.config.maxExtractionsPerUserPerDay - state.extractionsToday
+        this.config.maxExtractionsPerUserPerDay - state.extractionsToday,
       ),
     };
   }
