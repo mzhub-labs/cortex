@@ -1,6 +1,6 @@
 {
   "name": "@mzhub/cortex",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Persistent memory for AI agents - A tiered memory system with fact extraction and conflict resolution",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
