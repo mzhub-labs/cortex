@@ -29,23 +29,26 @@ export class OpenAIProvider extends BaseProvider {
       jsonMode = true,
     } = options;
 
-    const response = await fetch(`${this.endpoint}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
+    const response = await this.fetchWithRetry(
+      `${this.endpoint}/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: maxTokens,
+          temperature,
+          ...(jsonMode && { response_format: { type: "json_object" } }),
+        }),
       },
-      body: JSON.stringify({
-        model: this.model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        max_tokens: maxTokens,
-        temperature,
-        ...(jsonMode && { response_format: { type: "json_object" } }),
-      }),
-    });
+    );
 
     if (!response.ok) {
       const errorData = (await response
@@ -54,7 +57,7 @@ export class OpenAIProvider extends BaseProvider {
         error?: { message?: string };
       };
       throw new Error(
-        `OpenAI API error: ${errorData.error?.message || response.statusText}`
+        `OpenAI API error: ${errorData.error?.message || response.statusText}`,
       );
     }
 

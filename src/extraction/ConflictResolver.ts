@@ -31,7 +31,7 @@ export class ConflictResolver {
   async resolve(
     userId: string,
     operations: MemoryOperation[],
-    adapter: BaseAdapter
+    adapter: BaseAdapter,
   ): Promise<ConflictResolutionResult> {
     const resolvedOperations: MemoryOperation[] = [];
     const conflicts: ConflictResolutionResult["conflicts"] = [];
@@ -48,7 +48,7 @@ export class ConflictResolver {
 
       // Check for existing fact with same subject + predicate
       const existingFact = existingFacts.find(
-        (f) => f.subject === op.subject && f.predicate === op.predicate
+        (f) => f.subject === op.subject && f.predicate === op.predicate,
       );
 
       if (!existingFact) {
@@ -188,6 +188,15 @@ export function validateExtractionResult(raw: unknown): ExtractionResult {
         typeof operation.confidence === "number"
           ? Math.max(0, Math.min(1, operation.confidence))
           : 0.8,
+      importance:
+        typeof operation.importance === "number"
+          ? Math.max(1, Math.min(10, operation.importance))
+          : 5,
+      sentiment:
+        typeof operation.sentiment === "string" &&
+        ["positive", "negative", "neutral"].includes(operation.sentiment)
+          ? (operation.sentiment as "positive" | "negative" | "neutral")
+          : undefined,
     });
   }
 

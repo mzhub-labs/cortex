@@ -93,6 +93,18 @@ export class PostgresAdapter extends BaseAdapter {
       ON ${this.schema}.facts (user_id, invalidated_at)
     `);
 
+    // Unique constraint to prevent duplicate active facts (race condition protection)
+    // Note: This will fail if duplicates already exist - run deduplication first
+    await this.query(
+      `
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_facts_unique_active_triple 
+      ON ${this.schema}.facts (user_id, subject, predicate) 
+      WHERE invalidated_at IS NULL
+    `,
+    ).catch(() => {
+      // Index may already exist or duplicates prevent creation
+    });
+
     // Create conversations table
     await this.query(`
       CREATE TABLE IF NOT EXISTS ${this.schema}.conversations (
@@ -191,19 +203,19 @@ export class PostgresAdapter extends BaseAdapter {
 
   async getFactById(
     userId: string,
-    factId: string
+    factId: string,
   ): Promise<MemoryFact | null> {
     await this.ensureInitialized();
     const result = await this.query(
       `SELECT * FROM ${this.schema}.facts WHERE user_id = $1 AND id = $2`,
-      [userId, factId]
+      [userId, factId],
     );
     return result.rows[0] ? this.rowToFact(result.rows[0]) : null;
   }
 
   async upsertFact(
     userId: string,
-    fact: Omit<MemoryFact, "id" | "createdAt" | "updatedAt">
+    fact: Omit<MemoryFact, "id" | "createdAt" | "updatedAt">,
   ): Promise<MemoryFact> {
     await this.ensureInitialized();
     const { v4: uuidv4 } = await import("uuid");
@@ -212,7 +224,7 @@ export class PostgresAdapter extends BaseAdapter {
     const existing = await this.query(
       `SELECT id FROM ${this.schema}.facts 
        WHERE user_id = $1 AND subject = $2 AND predicate = $3 AND invalidated_at IS NULL`,
-      [userId, fact.subject, fact.predicate]
+      [userId, fact.subject, fact.predicate],
     );
 
     if (existing.rows[0]) {
@@ -227,7 +239,7 @@ export class PostgresAdapter extends BaseAdapter {
           fact.source,
           fact.metadata || null,
           existing.rows[0].id,
-        ]
+        ],
       );
       return this.rowToFact(result.rows[0]);
     }
@@ -248,7 +260,7 @@ export class PostgresAdapter extends BaseAdapter {
         fact.source,
         null,
         fact.metadata || null,
-      ]
+      ],
     );
     return this.rowToFact(result.rows[0]);
   }
@@ -256,7 +268,7 @@ export class PostgresAdapter extends BaseAdapter {
   async updateFact(
     userId: string,
     factId: string,
-    updates: Partial<MemoryFact>
+    updates: Partial<MemoryFact>,
   ): Promise<MemoryFact> {
     await this.ensureInitialized();
 
@@ -282,7 +294,7 @@ export class PostgresAdapter extends BaseAdapter {
     const result = await this.query(
       `UPDATE ${this.schema}.facts SET ${setClauses.join(", ")} 
        WHERE user_id = $${paramIndex++} AND id = $${paramIndex} RETURNING *`,
-      params
+      params,
     );
 
     if (!result.rows[0]) {
@@ -295,12 +307,12 @@ export class PostgresAdapter extends BaseAdapter {
   async deleteFact(
     userId: string,
     factId: string,
-    _reason?: string
+    _reason?: string,
   ): Promise<void> {
     await this.ensureInitialized();
     await this.query(
       `UPDATE ${this.schema}.facts SET invalidated_at = NOW() WHERE user_id = $1 AND id = $2`,
-      [userId, factId]
+      [userId, factId],
     );
   }
 
@@ -308,7 +320,7 @@ export class PostgresAdapter extends BaseAdapter {
     await this.ensureInitialized();
     await this.query(
       `DELETE FROM ${this.schema}.facts WHERE user_id = $1 AND id = $2`,
-      [userId, factId]
+      [userId, factId],
     );
   }
 
@@ -319,7 +331,7 @@ export class PostgresAdapter extends BaseAdapter {
   async getConversationHistory(
     userId: string,
     limit?: number,
-    sessionId?: string
+    sessionId?: string,
   ): Promise<ConversationExchange[]> {
     await this.ensureInitialized();
 
@@ -344,7 +356,7 @@ export class PostgresAdapter extends BaseAdapter {
 
   async saveConversation(
     userId: string,
-    exchange: Omit<ConversationExchange, "id">
+    exchange: Omit<ConversationExchange, "id">,
   ): Promise<ConversationExchange> {
     await this.ensureInitialized();
     const { v4: uuidv4 } = await import("uuid");
@@ -362,13 +374,13 @@ export class PostgresAdapter extends BaseAdapter {
         exchange.assistantResponse,
         exchange.timestamp,
         exchange.metadata || null,
-      ]
+      ],
     );
 
     // Update session message count
     await this.query(
       `UPDATE ${this.schema}.sessions SET message_count = message_count + 1 WHERE id = $1`,
-      [exchange.sessionId]
+      [exchange.sessionId],
     );
 
     return this.rowToConversation(result.rows[0]);
@@ -397,7 +409,7 @@ export class PostgresAdapter extends BaseAdapter {
     await this.ensureInitialized();
     const result = await this.query(
       `SELECT * FROM ${this.schema}.sessions WHERE user_id = $1 AND id = $2`,
-      [userId, sessionId]
+      [userId, sessionId],
     );
     return result.rows[0] ? this.rowToSession(result.rows[0]) : null;
   }
@@ -409,7 +421,7 @@ export class PostgresAdapter extends BaseAdapter {
     const id = uuidv4();
     const result = await this.query(
       `INSERT INTO ${this.schema}.sessions (id, user_id) VALUES ($1, $2) RETURNING *`,
-      [id, userId]
+      [id, userId],
     );
     return this.rowToSession(result.rows[0]);
   }
@@ -417,7 +429,7 @@ export class PostgresAdapter extends BaseAdapter {
   async endSession(
     userId: string,
     sessionId: string,
-    summary?: string
+    summary?: string,
   ): Promise<Session> {
     await this.ensureInitialized();
 
@@ -425,7 +437,7 @@ export class PostgresAdapter extends BaseAdapter {
       `UPDATE ${this.schema}.sessions 
        SET ended_at = NOW(), summary = COALESCE($1, summary)
        WHERE user_id = $2 AND id = $3 RETURNING *`,
-      [summary || null, userId, sessionId]
+      [summary || null, userId, sessionId],
     );
 
     if (!result.rows[0]) {

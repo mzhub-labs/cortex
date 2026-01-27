@@ -62,6 +62,9 @@ export class MemoryOS {
   private activeSessions: Map<string, string> = new Map(); // userId -> sessionId
 
   constructor(config: MemoryOSConfig) {
+    // Runtime validation - fail fast with helpful errors
+    this.validateConfig(config);
+
     // Initialize adapter
     this.adapter = config.adapter || new InMemoryAdapter();
 
@@ -90,6 +93,78 @@ export class MemoryOS {
     this.hydrator = new ContextHydrator(this.adapter, {
       formatStyle: "natural",
     });
+  }
+
+  /**
+   * Validate configuration at construction time for fail-fast behavior
+   */
+  private validateConfig(config: MemoryOSConfig): void {
+    if (!config.llm) {
+      throw new Error(
+        "MemoryOS: config.llm is required. " +
+          "Provide either { provider, apiKey } or { instance: BaseProvider }.",
+      );
+    }
+
+    if (!("instance" in config.llm)) {
+      const llmConfig = config.llm;
+
+      if (!llmConfig.apiKey || llmConfig.apiKey.trim() === "") {
+        throw new Error(
+          "MemoryOS: config.llm.apiKey is required. " +
+            "Get your API key from your LLM provider (e.g., https://platform.openai.com/api-keys).",
+        );
+      }
+
+      const validProviders = [
+        "openai",
+        "anthropic",
+        "gemini",
+        "groq",
+        "cerebras",
+      ];
+      if (!validProviders.includes(llmConfig.provider)) {
+        throw new Error(
+          `MemoryOS: config.llm.provider '${llmConfig.provider}' is not supported. ` +
+            `Valid providers: ${validProviders.join(", ")}.`,
+        );
+      }
+    }
+
+    if (config.options) {
+      if (
+        config.options.cacheTtl !== undefined &&
+        (typeof config.options.cacheTtl !== "number" ||
+          config.options.cacheTtl < 0)
+      ) {
+        throw new Error(
+          `MemoryOS: config.options.cacheTtl must be a positive number. ` +
+            `Got: ${config.options.cacheTtl}.`,
+        );
+      }
+
+      if (
+        config.options.autoSummarizeAfter !== undefined &&
+        (typeof config.options.autoSummarizeAfter !== "number" ||
+          config.options.autoSummarizeAfter < 1)
+      ) {
+        throw new Error(
+          `MemoryOS: config.options.autoSummarizeAfter must be a positive integer. ` +
+            `Got: ${config.options.autoSummarizeAfter}.`,
+        );
+      }
+
+      const validStrategies = ["latest", "merge", "keep_both"];
+      if (
+        config.options.conflictStrategy &&
+        !validStrategies.includes(config.options.conflictStrategy)
+      ) {
+        throw new Error(
+          `MemoryOS: config.options.conflictStrategy '${config.options.conflictStrategy}' is invalid. ` +
+            `Valid strategies: ${validStrategies.join(", ")}.`,
+        );
+      }
+    }
   }
 
   /**

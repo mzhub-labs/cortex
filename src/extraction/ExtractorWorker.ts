@@ -7,12 +7,15 @@ import {
   validateExtractionResult,
   type ConflictStrategy,
 } from "./ConflictResolver";
+import { SecurityScanner } from "../security";
 
 export interface ExtractorWorkerConfig {
   /** Minimum confidence threshold for facts (0-1) */
   minConfidence?: number;
   /** Conflict resolution strategy */
   conflictStrategy?: ConflictStrategy;
+  /** Maximum operations per extraction (default: 10, prevents memory bombs) */
+  maxOperationsPerExtraction?: number;
   /** Enable debug logging */
   debug?: boolean;
 }
@@ -34,6 +37,7 @@ export class ExtractorWorker {
   private adapter: BaseAdapter;
   private conflictResolver: ConflictResolver;
   private minConfidence: number;
+  private maxOperationsPerExtraction: number;
   private debug: boolean;
 
   // Simple in-memory queue for background processing
@@ -43,13 +47,14 @@ export class ExtractorWorker {
   constructor(
     provider: BaseProvider,
     adapter: BaseAdapter,
-    config: ExtractorWorkerConfig = {}
+    config: ExtractorWorkerConfig = {},
   ) {
     this.provider = provider;
     this.adapter = adapter;
     this.minConfidence = config.minConfidence ?? 0.5;
+    this.maxOperationsPerExtraction = config.maxOperationsPerExtraction ?? 10;
     this.conflictResolver = new ConflictResolver(
-      config.conflictStrategy ?? "latest"
+      config.conflictStrategy ?? "latest",
     );
     this.debug = config.debug ?? false;
   }
@@ -62,7 +67,7 @@ export class ExtractorWorker {
     userId: string,
     sessionId: string,
     userMessage: string,
-    assistantResponse: string
+    assistantResponse: string,
   ): void {
     this.queue.push({
       userId,
@@ -165,14 +170,27 @@ export class ExtractorWorker {
 
     if (this.debug) {
       console.log(
-        `[ExtractorWorker] Extracted ${extractionResult.operations.length} operations`
+        `[ExtractorWorker] Extracted ${extractionResult.operations.length} operations`,
       );
     }
 
     // Filter by confidence threshold
-    const confidentOperations = extractionResult.operations.filter(
-      (op) => (op.confidence ?? 0.8) >= this.minConfidence
+    let confidentOperations = extractionResult.operations.filter(
+      (op) => (op.confidence ?? 0.8) >= this.minConfidence,
     );
+
+    // Limit operations per extraction to prevent memory bombs
+    if (confidentOperations.length > this.maxOperationsPerExtraction) {
+      if (this.debug) {
+        console.warn(
+          `[ExtractorWorker] Limiting ${confidentOperations.length} operations to ${this.maxOperationsPerExtraction}`,
+        );
+      }
+      confidentOperations = confidentOperations.slice(
+        0,
+        this.maxOperationsPerExtraction,
+      );
+    }
 
     if (confidentOperations.length === 0) {
       return { operations: [], reasoning: extractionResult.reasoning };
@@ -182,7 +200,7 @@ export class ExtractorWorker {
     const { resolvedOperations } = await this.conflictResolver.resolve(
       userId,
       confidentOperations,
-      this.adapter
+      this.adapter,
     );
 
     // Apply operations to the adapter
@@ -200,9 +218,10 @@ export class ExtractorWorker {
   private async applyOperations(
     userId: string,
     sessionId: string,
-    operations: MemoryOperation[]
+    operations: MemoryOperation[],
   ): Promise<MemoryFact[]> {
     const appliedFacts: MemoryFact[] = [];
+    const scanner = new SecurityScanner({ detectPii: true });
 
     for (const op of operations) {
       try {
@@ -220,6 +239,22 @@ export class ExtractorWorker {
           }
         } else {
           // INSERT or UPDATE
+          // PII detection warning
+          const scanResult = scanner.isSafeToStore({
+            subject: op.subject,
+            predicate: op.predicate,
+            object: op.object,
+          });
+          if (scanResult.issues.length > 0) {
+            const piiIssues = scanResult.issues.filter((i) => i.type === "pii");
+            if (piiIssues.length > 0 && this.debug) {
+              console.warn(
+                `[cortex] PII detected in memory for user ${userId}: ${piiIssues.map((i) => i.description).join(", ")}. ` +
+                  `Consider using SecurityScanner.redactPii option.`,
+              );
+            }
+          }
+
           // Auto-escalate importance for safety-critical predicates
           const importance = this.getEffectiveImportance(op);
 
@@ -241,7 +276,7 @@ export class ExtractorWorker {
           console.error(
             `[ExtractorWorker] Failed to apply operation:`,
             op,
-            err
+            err,
           );
         }
       }
@@ -257,7 +292,7 @@ export class ExtractorWorker {
     userId: string,
     sessionId: string,
     userMessage: string,
-    assistantResponse: string
+    assistantResponse: string,
   ): Promise<ExtractionResult> {
     return this.processTask({
       userId,
@@ -315,7 +350,7 @@ export class ExtractorWorker {
 
     const upperPredicate = op.predicate.toUpperCase();
     const isSafetyCritical = safetyPredicates.some((sp) =>
-      upperPredicate.includes(sp)
+      upperPredicate.includes(sp),
     );
 
     if (isSafetyCritical && providedImportance < 9) {

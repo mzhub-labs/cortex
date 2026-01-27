@@ -1,6 +1,6 @@
-<p align="center">
+<!-- <p align="center">
   <img src="logo.png" alt="cortex" width="180" />
-</p>
+</p> -->
 
 <h1 align="center">cortex</h1>
 
@@ -269,6 +269,27 @@ Critical facts (importance ≥ 9) are **always included** in context.
 | Cross-user leakage          | Strict user ID isolation              |
 | Forgetting critical info    | Importance scoring (amygdala pattern) |
 
+**Built-in Protections:**
+
+```typescript
+// Prompt injection is mitigated automatically
+// Memory content is XML-escaped and wrapped with safety instructions
+const context = await memory.hydrate(userId, message);
+// context.compiledPrompt contains:
+// <memory_context type="data" trusted="false">
+// [escaped content - injection patterns are neutered]
+// </memory_context>
+
+// PII detection warns in debug mode
+const memory = new MemoryOS({
+  llm: { provider: "openai", apiKey: "..." },
+  options: { debug: true }, // Enables PII warnings
+});
+
+// Path traversal attacks are blocked
+// userId "../../../etc/passwd" becomes safe "______etc_passwd"
+```
+
 ### Cost Control
 
 | Risk                     | Mitigation                                |
@@ -283,6 +304,54 @@ const budget = new BudgetManager({
   maxTokensPerUserPerDay: 100000,
   maxExtractionsPerUserPerDay: 100,
 });
+```
+
+### Reliability
+
+**Provider Resilience:**
+
+```typescript
+// All LLM providers include automatic:
+// - 30 second timeout (configurable)
+// - 3 retry attempts with exponential backoff
+// - Retry on 429, 500, 502, 503, 504 status codes
+
+const memory = new MemoryOS({
+  llm: {
+    provider: "openai",
+    apiKey: process.env.OPENAI_API_KEY,
+    // Optional: customize retry behavior
+    retry: {
+      timeoutMs: 60000, // 60 second timeout
+      maxRetries: 5, // 5 attempts
+      retryDelayMs: 2000, // Start with 2s delay
+    },
+  },
+});
+```
+
+**Configuration Validation:**
+
+```typescript
+// Invalid config is caught immediately, not at runtime
+new MemoryOS({
+  llm: { provider: "fake", apiKey: "" },
+});
+// Throws: "MemoryOS: config.llm.provider 'fake' is not supported.
+//         Valid providers: openai, anthropic, gemini, groq, cerebras."
+
+new MemoryOS({
+  llm: { provider: "openai", apiKey: "" },
+});
+// Throws: "MemoryOS: config.llm.apiKey is required.
+//         Get your API key from your LLM provider..."
+```
+
+**PostgreSQL Race Condition Protection:**
+
+```typescript
+// Unique constraint prevents duplicate facts from concurrent digest() calls
+// Automatically created on PostgresAdapter initialization
 ```
 
 ---
@@ -327,6 +396,20 @@ cortex complements vectors. It does not replace them.
 - Critical information should never be forgotten
 - Agents should think like brains, not databases
 - Infrastructure should be boring and reliable
+
+---
+
+## Changelog
+
+### v1.0.0
+
+- **Security:** XML escaping in prompt safety wrapper prevents injection via `</memory_context>`
+- **Security:** PII detection warnings in debug mode
+- **Reliability:** Runtime config validation with helpful error messages
+- **Reliability:** Provider timeout (30s) and retry (3x with exponential backoff)
+- **Reliability:** Unique constraint on PostgreSQL prevents duplicate facts from race conditions
+- **Data Integrity:** Importance scores clamped to valid 1-10 range
+- **Data Integrity:** Sentiment validation on extracted operations
 
 ---
 
